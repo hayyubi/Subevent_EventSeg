@@ -75,7 +75,7 @@ def predict_m2e2(data, save_file_prefix, gpu_num, sample_size, batch_size, error
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--input_file", default='../data/extracted_events_test/test_split/test_events_annots_converted_to_jcl_format.json', help="input corpus file")
+    parser.add_argument("--input_file", default='/home/hammad/kairos/Subevent_EventSeg/output/test_val_te2ve.json', help="input corpus file")
     parser.add_argument("--save_file", default='test_seseg.json', help="output file events in joint constrained learning format")
     parser.add_argument("--num_process_per_gpu", type=int, default=1, help="Number of processes per gpu")
     parser.add_argument("--gpus", type=str, default='7', help="exact gpu numbers")
