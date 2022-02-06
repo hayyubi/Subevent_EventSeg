@@ -139,7 +139,7 @@ class exp:
             print(self.IC_best_prfs, file = self.file)
         return -0.000001, self.HiEve_best_F1, self.IC_best_F1
             
-    def evaluate(self, eval_data, test = False, predict = False):
+    def evaluate(self, eval_data, test = False, predict = False, loaded_model=False):
         # ========================================
         #             Validation / Test
         # ========================================
@@ -149,20 +149,21 @@ class exp:
         t0 = time.time()
             
         if test:
-            if self.load_model_path:
-                self.model = torch.load(self.load_model_path + self.model_name + ".pt")
-            elif eval_data == "HiEve":
-                self.model = torch.load(self.HiEve_best_PATH)
-            elif eval_data == "IC":
-                self.model = torch.load(self.IC_best_PATH)
-            else: # MATRES
-                self.model = torch.load(self.MATRES_best_PATH)
-            self.model.to(self.cuda)
-            print("")
-            print("loaded " + eval_data + " best model:" + self.model_name + ".pt")
+            if not loaded_model:
+                if self.load_model_path:
+                    self.model = torch.load(self.load_model_path + self.model_name + ".pt")
+                elif eval_data == "HiEve":
+                    self.model = torch.load(self.HiEve_best_PATH)
+                elif eval_data == "IC":
+                    self.model = torch.load(self.IC_best_PATH)
+                else: # MATRES
+                    self.model = torch.load(self.MATRES_best_PATH)
+                self.model.to(self.cuda)
+            # print("")
+            # print("loaded " + eval_data + " best model:" + self.model_name + ".pt")
             if predict == False:
                 print("(from epoch " + str(self.best_epoch) + " )")
-            print("Running Evaluation on " + eval_data + " Test Set...")
+            # print("Running Evaluation on " + eval_data + " Test Set...")
             if eval_data == "MATRES":
                 dataloader = self.test_dataloader_MATRES
             elif eval_data in ["HiEve", "IC"]:
@@ -219,14 +220,14 @@ class exp:
                         numpyData = {"labels": "0 -- Before; 1 -- After; 2 -- Equal; 3 -- Vague", "array": y_logits}
                     else:
                         numpyData = {"labels": "0 -- Parent-Child; 1 -- Child-Parent; 2 -- Coref; 3 -- NoRel", "array": y_logits}
-                    json.dump(numpyData, outfile, cls=NumpyArrayEncoder)
+                    # json.dump(numpyData, outfile, cls=NumpyArrayEncoder)
                 try:
                     msg = message(subject=eval_data + " Prediction Notice",
                               text=self.dataset + "/" + self.model_name + " Predicted " + str(y_logits.shape[0] - 1) + " instances. (Current Path: " + os.getcwd() + ")")
                     send(msg)  # and send it
                 except:
                     pass
-                return 0
+                return numpyData
             else:
                 with open(predict + "gold", 'w') as outfile:
                     for i in y_gold:
